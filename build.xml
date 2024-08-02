@@ -1,0 +1,82 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<project name="BillingManagementSystem" default="clean" basedir=".">
+    <property name="src.dir" value="src"/>
+    <property name="test.dir" value="test"/>
+    <property name="build.dir" value="build"/>
+    <property name="lib.dir" value="lib"/>
+    <property name="dist.dir" value="dist"/>
+    <property name="jar.name" value="BillingManagementSystem.jar"/>
+
+    <!-- Define the classpath, including the additional NetBeans JAR -->
+    <path id="classpath">
+        <fileset dir="${lib.dir}">
+            <include name="**/*.jar"/>
+        </fileset>
+        <pathelement location="C:\Program Files\NetBeans-22\netbeans\java\modules\ext\AbsoluteLayout.jar"/>
+    </path>
+
+    <!-- Clean the build and distribution directories -->
+    <target name="clean">
+        <delete dir="${build.dir}"/>
+        <delete dir="${dist.dir}"/>
+    </target>
+
+    <!-- Compile the source code -->
+    <target name="compile">
+        <mkdir dir="${build.dir}/classes"/>
+        <javac srcdir="${src.dir}" destdir="${build.dir}/classes" includeantruntime="false" classpathref="classpath"/>
+    </target>
+
+    <!-- Compile test code -->
+    <target name="compile-tests" depends="compile">
+        <mkdir dir="${build.dir}/test-classes"/>
+        <javac srcdir="${test.dir}" destdir="${build.dir}/test-classes" includeantruntime="false">
+            <classpath>
+                <path refid="classpath"/>
+                <pathelement path="${build.dir}/classes"/>
+            </classpath>
+        </javac>
+    </target>
+
+    <!-- Copy test resources including mockito-extensions -->
+    <target name="copy-test-resources">
+        <copy todir="${build.dir}/test-classes">
+            <fileset dir="${test.dir}">
+                <include name="**/*.properties"/>
+                <include name="**/*.xml"/>
+                <include name="mockito-extensions/**"/>
+            </fileset>
+        </copy>
+    </target>
+
+    <!-- Run unit tests -->
+    <target name="run-tests" depends="compile-tests, copy-test-resources">
+        <junit printsummary="yes" haltonfailure="yes" fork="yes">
+            <classpath>
+                <path refid="classpath"/>
+                <pathelement path="${build.dir}/classes"/>
+                <pathelement path="${build.dir}/test-classes"/>
+            </classpath>
+            <batchtest>
+                <fileset dir="${test.dir}">
+                    <include name="**/*Test.java"/>
+                </fileset>
+            </batchtest>
+            <formatter type="plain"/>
+            <formatter type="xml"/>
+        </junit>
+    </target>
+
+    <!-- Package the application into a JAR file -->
+    <target name="jar" depends="compile">
+        <mkdir dir="${dist.dir}"/>
+        <jar destfile="${dist.dir}/${jar.name}" basedir="${build.dir}/classes">
+            <manifest>
+                <attribute name="Main-Class" value="billing.management.system.login"/>
+            </manifest>
+        </jar>
+    </target>
+
+    <!-- Define the build process -->
+    <target name="build" depends="clean, compile, jar"/>
+</project>
